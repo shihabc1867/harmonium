@@ -130,6 +130,23 @@ function stopVoice(vid, quick) {
   });
 }
 
+/* short metronome tick */
+function click(accent) {
+  initAudio();
+  if (ctx.state !== "running") { ctx.resume(); }
+  var t = ctx.currentTime;
+  var o = ctx.createOscillator();
+  var g = ctx.createGain();
+  o.type = "square";
+  o.frequency.value = accent ? 1500 : 1000;
+  g.gain.setValueAtTime(0.25, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
+  o.connect(g);
+  g.connect(master);
+  o.start(t);
+  o.stop(t + 0.08);
+}
+
 function mark(i, d) {
   lit[i] = (lit[i] || 0) + d;
   var el = keyEls[i];
@@ -468,6 +485,7 @@ window.Harmo = {
   noteOff: noteOff,
   freq: freq,
   setHint: setHint,
+  click: click,
   onPress: null,
   viewHooks: [],
   names: NAMES,

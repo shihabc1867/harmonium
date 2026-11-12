@@ -27,7 +27,7 @@
     "M", "P", "d", "D", "n", "N"];
 
   var Z = { songs: [], bpm: {}, glow: true,
-    cur: "b1" };
+    rhythm: false, cur: "b1" };
   var cur = BUILTIN[0];
   var active = false;
   var editing = false;
@@ -42,6 +42,14 @@
   var timers = [];
   var live = [];
   var uid = 0;
+  var starts = [];
+  var t0 = 0;
+  var lastT = 0;
+  var tickTimer = 0;
+  var ticking = false;
+  var scored = 0;
+  var good = 0;
+  var skip = false;
 
   /* ---------- storage ---------- */
 
@@ -53,6 +61,7 @@
       if (s.songs) { Z.songs = s.songs; }
       if (s.bpm) { Z.bpm = s.bpm; }
       if (s.glow === false) { Z.glow = false; }
+      if (s.rhythm === true) { Z.rhythm = true; }
       if (s.cur) { Z.cur = s.cur; }
     } catch (e) {}
     cur = find(Z.cur) || BUILTIN[0];
@@ -177,21 +186,90 @@
     $("s-bpm").textContent = bpmOf(cur);
     $("s-glow").textContent =
       "Glow: " + (Z.glow ? "On" : "Off");
+    $("s-rhythm").textContent =
+      "Rhythm: " + (Z.rhythm ? "On" : "Off");
     build(cur.seq);
     msg("");
   }
 
   function songNotes() {
     var p = N.parse(cur.seq);
+    var t = 0;
     noteK = [];
     notes = [];
+    starts = [];
     p.forEach(function (n, k) {
       if (n.i >= 0) {
         noteK.push(k);
         notes.push(n);
+        starts.push(t);
       }
+      t += n.b;
     });
     return p;
+  }
+
+  /* ---------- rhythm check ---------- */
+
+  function beatMs() {
+    return 60000 / bpmOf(cur);
+  }
+
+  function stopClicks() {
+    clearTimeout(tickTimer);
+    ticking = false;
+  }
+
+  /* 4 count-in ticks, then a tick every beat */
+  function startClicks() {
+    var beat = beatMs();
+    var base = Date.now();
+    var n = 0;
+    var last = starts[starts.length - 1] || 0;
+    var maxN = 4 + last + 12;
+    ticking = true;
+    t0 = base + 4 * beat;
+    lastT = 0;
+    scored = 0;
+    good = 0;
+    skip = false;
+    function tick() {
+      if (!ticking) { return; }
+      if (n > maxN) { stopClicks(); return; }
+      H.click(n % 4 === 0);
+      n++;
+      var wait = base + n * beat - Date.now();
+      tickTimer = setTimeout(tick,
+        Math.max(0, wait));
+    }
+    tick();
+  }
+
+  /* Compare this key press with the beat.
+     Returns Good / Early / Late (or ""). */
+  function judge() {
+    var now = Date.now();
+    var fb = "";
+    if (ticking) {
+      var beat = beatMs();
+      var tol = Math.max(110, beat * 0.28);
+      if (skip) {
+        skip = false;
+      } else {
+        var exp = pos === 0 ? t0 : lastT +
+          (starts[pos] - starts[pos - 1]) * beat;
+        var d = now - exp;
+        scored++;
+        if (Math.abs(d) <= tol) {
+          good++;
+          fb = "Good";
+        } else {
+          fb = d < 0 ? "Early" : "Late";
+        }
+      }
+      lastT = now;
+    }
+    return fb;
   }
 
   /* ---------- listen ---------- */
@@ -251,6 +329,7 @@
   /* ---------- learn ---------- */
 
   function stopLearn() {
+    stopClicks();
     if (learning) {
       learning = false;
       $("s-learn").textContent = "Learn";
@@ -276,8 +355,12 @@
     learning = true;
     pos = 0;
     $("s-learn").textContent = "Stop";
-    msg("Play the glowing key.");
-    if (!Z.glow) { msg("Play the marked swara."); }
+    msg(Z.glow ? "Play the glowing key." :
+      "Play the marked swara.");
+    if (Z.rhythm) {
+      startClicks();
+      msg("Count 4 beats, then start.");
+    }
     refreshLearn();
   }
 
@@ -286,6 +369,7 @@
     var j = noteK.indexOf(kk);
     if (j < 0) { return; }
     pos = j;
+    skip = true;
     msg("");
     refreshLearn();
   }
@@ -300,18 +384,27 @@
       return;
     }
     if (k === notes[pos].i) {
+      var fb = judge();
       pos++;
-      msg("");
+      msg(fb);
       if (pos >= notes.length) {
+        var extra = "";
+        if (ticking && scored) {
+          extra = " Rhythm: " + good + " of " +
+            scored + " on time (" +
+            Math.round(100 * good / scored) + "%).";
+        }
+        stopClicks();
         learning = false;
         $("s-learn").textContent = "Learn";
         H.setHint([]);
         paint(1e9);
-        msg("Well done! You played it all.");
+        msg("Well done!" + extra);
       } else {
         refreshLearn();
       }
     } else {
+      if (ticking) { skip = true; }
       msg("Not that one. Try again.");
     }
   }
@@ -447,7 +540,96 @@
     Z.songs.forEach(function (s) {
       addBtn(box, s);
     });
+    listMsg("");
     $("songs-list").hidden = false;
+  }
+
+  /* ---------- backup / import ---------- */
+
+  function listMsg(t) {
+    $("songs-msg").textContent = t;
+  }
+
+  function exportJSON() {
+    var data = {
+      app: "harmonium",
+      version: 1,
+      songs: Z.songs.map(function (s) {
+        return { title: s.title, seq: s.seq,
+          bpm: bpmOf(s) };
+      })
+    };
+    return JSON.stringify(data, null, 1);
+  }
+
+  function exportSongs() {
+    if (!Z.songs.length) {
+      listMsg("You have no songs of your own yet.");
+      return;
+    }
+    var blob = new Blob([exportJSON()],
+      { type: "application/json" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = "harmonium-songs.json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () {
+      URL.revokeObjectURL(url);
+    }, 4000);
+    listMsg("Download started: " + Z.songs.length +
+      " song(s). Check your Downloads.");
+  }
+
+  function importText(text) {
+    var d;
+    try { d = JSON.parse(text); }
+    catch (e) {
+      listMsg("That file is not a Harmonium backup.");
+      return;
+    }
+    var arr = Array.isArray(d) ? d : d && d.songs;
+    if (!Array.isArray(arr)) {
+      listMsg("That file is not a Harmonium backup.");
+      return;
+    }
+    var added = 0;
+    var skipped = 0;
+    arr.forEach(function (s) {
+      if (!s || typeof s.seq !== "string" ||
+          typeof s.title !== "string") {
+        skipped++;
+        return;
+      }
+      var p = N.parse(s.seq);
+      var cnt = p.filter(function (n) {
+        return n.i >= 0;
+      }).length;
+      var dup = Z.songs.some(function (x) {
+        return x.title === s.title &&
+          x.seq === s.seq;
+      });
+      if (p.bad.length || !cnt || dup ||
+          s.seq.length > 6000) {
+        skipped++;
+        return;
+      }
+      var bpm = +s.bpm || 80;
+      Z.songs.push({
+        id: "u" + Date.now() + "_" + (uid++),
+        title: s.title.slice(0, 60),
+        seq: s.seq,
+        bpm: Math.max(30, Math.min(200, bpm))
+      });
+      added++;
+    });
+    saveZ();
+    openList();
+    listMsg("Imported " + added + " song(s)" +
+      (skipped ? ", skipped " + skipped +
+        " (duplicate or invalid)." : "."));
   }
 
   /* ---------- wiring ---------- */
@@ -488,6 +670,16 @@
       "Glow: " + (Z.glow ? "On" : "Off");
     if (learning) { refreshLearn(); }
   };
+  $("s-rhythm").onclick = function () {
+    Z.rhythm = !Z.rhythm;
+    saveZ();
+    $("s-rhythm").textContent =
+      "Rhythm: " + (Z.rhythm ? "On" : "Off");
+    if (learning) {
+      stopLearn();
+      startLearn();
+    }
+  };
   $("s-edit").onclick = function () {
     startEdit(cur);
   };
@@ -511,6 +703,24 @@
         $("songs-list").hidden = true;
       }
     });
+  $("songs-export").onclick = exportSongs;
+  $("songs-import").onclick = function () {
+    $("songs-file").click();
+  };
+  $("songs-file").onchange = function () {
+    var f = this.files && this.files[0];
+    if (!f) { return; }
+    if (f.size > 1000000) {
+      listMsg("That file is too big.");
+      return;
+    }
+    var r = new FileReader();
+    r.onload = function () {
+      importText(String(r.result));
+    };
+    r.readAsText(f);
+    this.value = "";
+  };
   $("songs-new").onclick = function () {
     $("songs-list").hidden = true;
     startEdit(null);
@@ -537,7 +747,11 @@
     function () { emsg(""); });
 
   /* for tests */
-  window.HarmoSongs = { tokenOf: tokenOf };
+  window.HarmoSongs = {
+    tokenOf: tokenOf,
+    importText: importText,
+    exportJSON: exportJSON
+  };
 
   loadZ();
 })();

@@ -1,4 +1,4 @@
-var CACHE = "harmonium-v3";
+var CACHE = "harmonium-v4";
 var FILES = [
   "./",
   "index.html",

@@ -120,7 +120,7 @@ var LESSONS = [
       seq: "S - R - G - R -",
       text: "Tap Hear it, then play S R G R,\n" +
       "holding each for 2 beats.\n" +
-      "(Timing is not checked yet.)" },
+      "(Try Rhythm mode in Songs later.)" },
     { t: "play", hint: true,
       seq: "S S _ G G _ P - -",
       text: "Rests are silent.\n" +

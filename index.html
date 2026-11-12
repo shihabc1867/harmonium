@@ -91,6 +91,7 @@
             <button id="s-learn">Learn</button>
             <button id="s-glow">Glow: On</button>
             <button id="s-edit">Edit</button>
+            <button id="s-rhythm">Rhythm: Off</button>
           </div>
           <div id="s-msg"></div>
         </div>
@@ -168,6 +169,16 @@
       New song
     </button>
     <div id="songs-box"></div>
+    <h3 class="sub">Backup</h3>
+    <button id="songs-export">
+      Export my songs
+    </button>
+    <button id="songs-import">
+      Import songs
+    </button>
+    <input id="songs-file" type="file" hidden
+      accept=".json,application/json">
+    <p id="songs-msg" class="hint-text"></p>
     <button id="songs-close">Close</button>
   </div>
 </div>

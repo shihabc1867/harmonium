@@ -376,7 +376,7 @@ main {
   border-radius: 6px;
 }
 .s-side {
-  width: 230px;
+  width: 270px;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -386,7 +386,7 @@ main {
 }
 .s-btns {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 6px;
 }
 #s-edit-view .s-btns {
@@ -394,8 +394,8 @@ main {
 }
 .s-btns button {
   min-height: 30px;
-  padding: 3px 6px;
-  font-size: 13px;
+  padding: 3px 4px;
+  font-size: 12px;
 }
 #s-msg {
   min-height: 16px;
