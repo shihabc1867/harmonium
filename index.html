@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport"
+ content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#16120f">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Harmonium</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="rotate">
+  <div>
+    <div class="big">&#8635;</div>
+    <p>Please rotate your phone<br>to landscape mode</p>
+  </div>
+</div>
+
+<div id="app">
+  <header>
+    <div class="brand">Harmonium</div>
+    <nav>
+      <button class="tab on">Play</button>
+      <button class="tab" disabled
+        title="Coming in Phase 2">Learn</button>
+      <button class="tab" disabled
+        title="Coming in Phase 3">Songs</button>
+    </nav>
+    <div class="tools">
+      <button id="oct-dn">Oct &minus;</button>
+      <span id="oct-val">0</span>
+      <button id="oct-up">Oct +</button>
+      <button id="btn-theme">Light</button>
+      <button id="btn-set">Settings</button>
+      <button id="btn-install" hidden>Install</button>
+    </div>
+  </header>
+  <main>
+    <div id="keys"></div>
+  </main>
+</div>
+
+<div id="sheet" hidden>
+  <div class="card">
+    <h2>Settings</h2>
+    <label>Scale (pitch of Sa)
+      <select id="set-scale"></select>
+    </label>
+    <label>Volume
+      <input id="set-vol" type="range"
+        min="0" max="1" step="0.05">
+    </label>
+    <label>Reeds
+      <select id="set-reed">
+        <option value="1">Single reed</option>
+        <option value="2">Double reed (fuller)</option>
+      </select>
+    </label>
+    <label>Key labels
+      <select id="set-labels">
+        <option value="both">Sargam + Western</option>
+        <option value="sargam">Sargam only</option>
+        <option value="western">Western only</option>
+      </select>
+    </label>
+    <label class="row">
+      <input id="set-drone" type="checkbox">
+      Drone (Sa + Pa)
+    </label>
+    <p class="hint">
+      Install: open the Chrome menu (three dots)
+      and tap "Install app".
+    </p>
+    <button id="set-close">Close</button>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
