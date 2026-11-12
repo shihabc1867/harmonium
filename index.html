@@ -37,8 +37,8 @@
         data-view="play">Play</button>
       <button class="tab"
         data-view="learn">Learn</button>
-      <button class="tab" disabled
-        title="Coming in Phase 3">Songs</button>
+      <button class="tab"
+        data-view="songs">Songs</button>
     </nav>
     <div class="tools">
       <button id="oct-dn">Oct &minus;</button>
@@ -67,6 +67,49 @@
           <button id="l-show" hidden>Show notes</button>
           <button id="l-back">Back</button>
           <button id="l-next" class="on">Next</button>
+        </div>
+      </div>
+    </section>
+    <section id="song" hidden>
+      <div class="s-bar">
+        <button id="s-list">Songs</button>
+        <span id="s-title"></span>
+        <input id="e-title" hidden
+          placeholder="Song name">
+        <span id="s-bpmbox" class="s-bpm">
+          <button id="s-slow">&minus;</button>
+          <span id="s-bpm">80</span> BPM
+          <button id="s-fast">+</button>
+        </span>
+        <span id="e-msg" hidden></span>
+      </div>
+      <div id="s-view" class="s-body">
+        <div id="s-notes"></div>
+        <div class="s-side">
+          <div class="s-btns">
+            <button id="s-play" class="on">Listen</button>
+            <button id="s-learn">Learn</button>
+            <button id="s-glow">Glow: On</button>
+            <button id="s-edit">Edit</button>
+          </div>
+          <div id="s-msg"></div>
+        </div>
+      </div>
+      <div id="s-edit-view" class="s-body" hidden>
+        <textarea id="e-seq" rows="3"
+          placeholder="Type or paste swaras, e.g. S S P P D D P -  or tap Record and play the keys."></textarea>
+        <div class="s-side">
+          <div class="s-btns">
+            <button id="e-rec">Record: Off</button>
+            <button id="e-bar">Bar |</button>
+            <button id="e-hold">Hold -</button>
+            <button id="e-rest">Rest _</button>
+            <button id="e-line">New line</button>
+            <button id="e-undo">Undo</button>
+            <button id="e-save" class="on">Save</button>
+            <button id="e-cancel">Cancel</button>
+            <button id="e-del">Delete</button>
+          </div>
         </div>
       </div>
     </section>
@@ -118,9 +161,21 @@
   </div>
 </div>
 
+<div id="songs-list" class="overlay" hidden>
+  <div class="card">
+    <h2>Songs</h2>
+    <button id="songs-new" class="on">
+      New song
+    </button>
+    <div id="songs-box"></div>
+    <button id="songs-close">Close</button>
+  </div>
+</div>
+
 <script src="notation.js"></script>
 <script src="app.js"></script>
 <script src="lessons.js"></script>
 <script src="learn.js"></script>
+<script src="songs.js"></script>
 </body>
 </html>

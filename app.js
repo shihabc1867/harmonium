@@ -469,6 +469,7 @@ window.Harmo = {
   freq: freq,
   setHint: setHint,
   onPress: null,
+  viewHooks: [],
   names: NAMES,
   state: S
 };

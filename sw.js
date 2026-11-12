@@ -1,4 +1,4 @@
-var CACHE = "harmonium-v2";
+var CACHE = "harmonium-v3";
 var FILES = [
   "./",
   "index.html",
@@ -7,6 +7,7 @@ var FILES = [
   "app.js",
   "lessons.js",
   "learn.js",
+  "songs.js",
   "manifest.json",
   "icon-192.png",
   "icon-512.png"

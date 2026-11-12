@@ -181,6 +181,7 @@
     }
     stopDemo();
     H.setHint([]);
+    H.viewHooks.forEach(function (f) { f(v); });
     if (v === "learn") { enterStep(); }
   }
 

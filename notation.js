@@ -35,6 +35,7 @@ var Notation = (function () {
     var toks = String(str).trim().split(/\s+/);
     toks.forEach(function (tok) {
       if (!tok) { return; }
+      if (tok === "|" || tok === "/") { return; }
       if (tok === "-") {
         if (out.length) { out[out.length - 1].b++; }
         return;
