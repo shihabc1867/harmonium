@@ -1,11 +1,11 @@
 "use strict";
 
-var NAMES = ["Sa", "Re\u266D", "Re", "Ga\u266D",
-  "Ga", "Ma", "Ma\u266F", "Pa", "Dha\u266D",
-  "Dha", "Ni\u266D", "Ni"];
-var WEST = ["C", "C\u266F", "D", "D\u266F", "E",
-  "F", "F\u266F", "G", "G\u266F", "A",
-  "A\u266F", "B"];
+var NAMES = ["Sa", "Re♭", "Re", "Ga♭",
+  "Ga", "Ma", "Ma♯", "Pa", "Dha♭",
+  "Dha", "Ni♭", "Ni"];
+var WEST = ["C", "C♯", "D", "D♯", "E",
+  "F", "F♯", "G", "G♯", "A",
+  "A♯", "B"];
 var BLACK = [1, 3, 6, 8, 10];
 var TOTAL = 37;
 
@@ -165,6 +165,18 @@ function allOff() {
   });
 }
 
+/* glowing hint on keys (used by the tutorial) */
+function setHint(list) {
+  keyEls.forEach(function (el) {
+    el.classList.remove("hint");
+  });
+  (list || []).forEach(function (i) {
+    if (keyEls[i]) {
+      keyEls[i].classList.add("hint");
+    }
+  });
+}
+
 /* ---------- keyboard drawing ---------- */
 
 function labelHTML(i) {
@@ -219,6 +231,51 @@ function build() {
   refreshLabels();
 }
 
+/* ---------- landscape + start screen ---------- */
+
+function isStandalone() {
+  var m = window.matchMedia &&
+    matchMedia("(display-mode: standalone)")
+      .matches;
+  return !!(m || navigator.standalone);
+}
+
+function tryLock() {
+  try {
+    screen.orientation.lock("landscape")
+      .catch(function () {});
+  } catch (e) {}
+}
+
+/* In a browser tab, locking works only in
+   full screen, so go full screen first. */
+function enterLandscape() {
+  var d = document.documentElement;
+  try {
+    if (d.requestFullscreen &&
+        !document.fullscreenElement) {
+      d.requestFullscreen()
+        .then(tryLock, tryLock);
+      return;
+    }
+  } catch (e) {}
+  tryLock();
+}
+
+$("start-btn").onclick = function () {
+  enterLandscape();
+  try {
+    initAudio();
+    ctx.resume();
+  } catch (e) {}
+  $("start").hidden = true;
+};
+
+if (isStandalone()) {
+  $("start").hidden = true;
+  tryLock();
+}
+
 /* ---------- touch / mouse ---------- */
 
 function keyAt(x, y) {
@@ -226,13 +283,6 @@ function keyAt(x, y) {
   if (!el) { return -1; }
   el = el.closest(".key");
   return el ? +el.dataset.i : -1;
-}
-
-function lockLandscape() {
-  try {
-    screen.orientation.lock("landscape")
-      .catch(function () {});
-  } catch (e) {}
 }
 
 keysEl.addEventListener("pointerdown",
@@ -244,7 +294,10 @@ keysEl.addEventListener("pointerdown",
     if (k < 0) { return; }
     act[e.pointerId] = k;
     noteOn(k, "p" + e.pointerId);
-    lockLandscape();
+    tryLock();
+    if (window.Harmo && window.Harmo.onPress) {
+      window.Harmo.onPress(k);
+    }
   });
 
 keysEl.addEventListener("pointermove",
@@ -408,11 +461,14 @@ if ("serviceWorker" in navigator) {
 
 /* ---------- start ---------- */
 
-/* Phase 2 and 3 will use these. */
+/* Used by the tutorial (Phase 2) and
+   the song player (Phase 3). */
 window.Harmo = {
   noteOn: noteOn,
   noteOff: noteOff,
   freq: freq,
+  setHint: setHint,
+  onPress: null,
   names: NAMES,
   state: S
 };

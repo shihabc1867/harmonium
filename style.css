@@ -53,6 +53,11 @@ button.on {
   color: #1a130c;
   border-color: var(--accent);
 }
+button.on:disabled {
+  background: var(--panel);
+  color: var(--text);
+  border-color: var(--muted);
+}
 
 #app {
   display: flex;
@@ -94,10 +99,14 @@ main {
   flex: 1;
   min-height: 0;
   padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 #keys {
   position: relative;
-  height: 100%;
+  flex: 1;
+  min-height: 0;
   touch-action: none;
   user-select: none;
   -webkit-user-select: none;
@@ -139,6 +148,21 @@ main {
   box-shadow: inset 0 -5px 0 var(--accent);
 }
 
+/* tutorial glow */
+.key.hint {
+  outline: 3px solid var(--accent);
+  outline-offset: -3px;
+  animation: glow 1s ease-in-out infinite;
+}
+.key.hint:not(.down) {
+  background-image: linear-gradient(
+    rgba(224, 163, 58, 0.4),
+    rgba(224, 163, 58, 0.4));
+}
+@keyframes glow {
+  50% { outline-color: transparent; }
+}
+
 .lab {
   display: flex;
   flex-direction: column;
@@ -174,7 +198,133 @@ main {
   line-height: 6px;
 }
 
-#sheet {
+/* tutorial panel */
+#lesson {
+  display: flex;
+  gap: 12px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 10px;
+  min-height: 104px;
+  max-height: 44vh;
+  overflow: auto;
+}
+#lesson[hidden] {
+  display: none;
+}
+.l-left {
+  flex: 1;
+  min-width: 0;
+}
+.l-right {
+  width: 46%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 4px;
+}
+.l-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.l-top button {
+  min-height: 28px;
+  padding: 2px 8px;
+}
+#l-title {
+  color: var(--accent);
+  font-weight: 700;
+}
+#l-text {
+  margin: 6px 0 0;
+  white-space: pre-line;
+  font-size: 14px;
+  line-height: 1.35;
+}
+#l-notes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  min-height: 30px;
+  font-size: 17px;
+}
+#l-msg {
+  min-height: 18px;
+  font-size: 13px;
+  color: var(--accent);
+}
+.nt {
+  display: inline-block;
+  text-align: center;
+  margin: 0 5px 2px 0;
+  line-height: 1.1;
+}
+.nt.high::before {
+  content: "\2022";
+  display: block;
+  line-height: 6px;
+  font-size: 11px;
+}
+.nt.low::after {
+  content: "\2022";
+  display: block;
+  line-height: 4px;
+  font-size: 11px;
+}
+.nt.hold {
+  color: var(--muted);
+}
+.nt.done {
+  color: var(--muted);
+  opacity: 0.6;
+}
+.nt.cur {
+  color: var(--accent);
+  font-weight: 700;
+  text-decoration: underline;
+}
+.l-btns {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+/* start screen */
+#start {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+#start[hidden] {
+  display: none;
+}
+#start h1 {
+  margin: 0 0 12px;
+  color: var(--accent);
+}
+#start button {
+  font-size: 20px;
+  padding: 12px 28px;
+  background: var(--accent);
+  color: #1a130c;
+  border-color: var(--accent);
+}
+#start p {
+  color: var(--muted);
+}
+
+/* panels that slide over the screen */
+.overlay {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.5);
@@ -182,7 +332,7 @@ main {
   justify-content: flex-end;
   z-index: 20;
 }
-#sheet[hidden] {
+.overlay[hidden] {
   display: none;
 }
 .card {
@@ -217,10 +367,18 @@ main {
   border: 1px solid var(--muted);
   border-radius: 6px;
 }
-.hint {
+.hint-text {
   color: var(--muted);
   font-size: 13px;
   margin: 0;
+}
+#stage-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.stage {
+  text-align: left;
 }
 
 #rotate {

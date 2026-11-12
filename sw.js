@@ -1,9 +1,12 @@
-var CACHE = "harmonium-v1";
+var CACHE = "harmonium-v2";
 var FILES = [
   "./",
   "index.html",
   "style.css",
+  "notation.js",
   "app.js",
+  "lessons.js",
+  "learn.js",
   "manifest.json",
   "icon-192.png",
   "icon-512.png"

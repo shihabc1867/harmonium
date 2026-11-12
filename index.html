@@ -14,6 +14,14 @@
 </head>
 <body>
 
+<div id="start">
+  <div>
+    <h1>Harmonium</h1>
+    <button id="start-btn">Tap to start</button>
+    <p>Opens in full screen, landscape.</p>
+  </div>
+</div>
+
 <div id="rotate">
   <div>
     <div class="big">&#8635;</div>
@@ -25,9 +33,10 @@
   <header>
     <div class="brand">Harmonium</div>
     <nav>
-      <button class="tab on">Play</button>
-      <button class="tab" disabled
-        title="Coming in Phase 2">Learn</button>
+      <button class="tab on"
+        data-view="play">Play</button>
+      <button class="tab"
+        data-view="learn">Learn</button>
       <button class="tab" disabled
         title="Coming in Phase 3">Songs</button>
     </nav>
@@ -41,11 +50,31 @@
     </div>
   </header>
   <main>
+    <section id="lesson" hidden>
+      <div class="l-left">
+        <div class="l-top">
+          <button id="l-list">Stages</button>
+          <span id="l-title"></span>
+          <span id="l-step"></span>
+        </div>
+        <p id="l-text"></p>
+      </div>
+      <div class="l-right">
+        <div id="l-notes"></div>
+        <div id="l-msg"></div>
+        <div class="l-btns">
+          <button id="l-hear">Hear it</button>
+          <button id="l-show" hidden>Show notes</button>
+          <button id="l-back">Back</button>
+          <button id="l-next" class="on">Next</button>
+        </div>
+      </div>
+    </section>
     <div id="keys"></div>
   </main>
 </div>
 
-<div id="sheet" hidden>
+<div id="sheet" class="overlay" hidden>
   <div class="card">
     <h2>Settings</h2>
     <label>Scale (pitch of Sa)
@@ -72,7 +101,7 @@
       <input id="set-drone" type="checkbox">
       Drone (Sa + Pa)
     </label>
-    <p class="hint">
+    <p class="hint-text">
       Install: open the Chrome menu (three dots)
       and tap "Install app".
     </p>
@@ -80,6 +109,18 @@
   </div>
 </div>
 
+<div id="stages" class="overlay" hidden>
+  <div class="card">
+    <h2>Tutorial stages</h2>
+    <div id="stage-list"></div>
+    <button id="stages-reset">Reset progress</button>
+    <button id="stages-close">Close</button>
+  </div>
+</div>
+
+<script src="notation.js"></script>
 <script src="app.js"></script>
+<script src="lessons.js"></script>
+<script src="learn.js"></script>
 </body>
 </html>
